@@ -1,15 +1,19 @@
 import { observer } from 'mobx-react-lite';
 import React, {FC, useContext, useEffect, useState} from 'react';
-import LoginForm from "./components/LoginForm";
+import LoginForm from './components/LoginForm';
 import {Context} from "./index";
 import {IUser} from "./models/IUser";
 import UserService from "./services/UserService";
+import { Popup } from './elements/Popup'
+import {Navigate, Route, Routes} from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import SettingsPage from './pages/SettingsPage';
 
 const App: FC = () => {
     const {store} = useContext(Context)
     const [users, setUsers] = useState<IUser[]>([])
 
-    useEffect(() => {
+    useEffect( () => {
         setUsers([])
         if(localStorage.getItem('token')) store.checkAuth()
     }, [])
@@ -25,17 +29,36 @@ const App: FC = () => {
     }
 
     if(store.isLoading) return <div>Loading...</div>
-    if(!store.isAuth) return <LoginForm/>
+    // console.log(!store.isAuth)
+
+    // if(!store.isAuth) {
+    //     return <Navigate to='/login' replace/>
+    // }
+
+    function onLogoutClick () {
+        store.logout()
+        setUsers([])
+    }
 
         return (
             <div>
-                <h1>{store.isAuth ? `User is authorized ${store.user.email}` : "Авторизуйтесь!"}</h1>
-            <h1>{store.user.isActivated ? "Account is activated" : "Warning! Account isn't activated"}</h1>
-                <button onClick={() => store.logout()}>Logout</button>
-                <div>
-                    <button onClick={getUsers}>Get clients</button>
-                </div>
-                {users.map(user => <div key={user.email}>{user.email}</div>)}
+                <Routes>
+                    <Route path='/login' element={<LoginForm />}/>
+                    <Route path='/' element={<HomePage />}/>
+                    <Route path='/settings' element={<SettingsPage />}/>
+                </Routes>
+                {/*{(!store.isAuth && !store.isLoading) && <Navigate to='/login' />}*/}
+                {/*{(store.isAuth && !store.isLoading) && <Navigate to='/' replace={true}/>}*/}
+
+                {/*<h1>{store.isAuth ?  <Navigate to='/' /> : <Navigate to='/login' />}</h1>*/}
+                {/*{!store.user.isActivated && store.isAuth && <Popup title='The account has not been activated yet!'/>}*/}
+                {/*{store.isAuth && <button onClick={onLogoutClick}>Logout</button>}*/}
+                {/*{store.isAuth && <div>*/}
+                {/*    <button onClick={getUsers}>Get clients</button>*/}
+                {/*</div>*/}
+                {/*}*/}
+                {/*{users.map(user => <div key={user.email}>{user.email}</div>)}*/}
+
             </div>
         );
 };
