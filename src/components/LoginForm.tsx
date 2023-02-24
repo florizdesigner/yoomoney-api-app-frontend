@@ -8,6 +8,12 @@ const LoginForm: FC = () => {
 
     const {store} = useContext(Context)
 
+    function onButtonClick (func: any) {
+        func(email, password)
+        setEmail('')
+        setPassword('')
+    }
+
     return (
         <div>
             <input
